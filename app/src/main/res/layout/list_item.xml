@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:padding="16dp">
+
+    <TextView
+        android:id="@+id/nameTextView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textSize="20sp"
+        android:textStyle="bold"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:text="Name"/>
+
+    <TextView
+        android:id="@+id/heightTextView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textSize="16sp"
+        app:layout_constraintStart_toStartOf="@id/nameTextView"
+        app:layout_constraintTop_toBottomOf="@id/nameTextView"
+        tools:text="Height"/>
+
+    <TextView
+        android:id="@+id/massTextView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textSize="16sp"
+        app:layout_constraintStart_toStartOf="@id/heightTextView"
+        app:layout_constraintTop_toBottomOf="@id/heightTextView"
+        tools:text="Mass"/>
+
+    <TextView
+        android:id="@+id/hairColorTextView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textSize="16sp"
+        app:layout_constraintStart_toStartOf="@id/massTextView"
+        app:layout_constraintTop_toBottomOf="@id/massTextView"
+        tools:text="Hair Color"/>
+
+    <TextView
+        android:id="@+id/eyeColorTextView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textSize="16sp"
+        app:layout_constraintStart_toStartOf="@id/hairColorTextView"
+        app:layout_constraintTop_toBottomOf="@id/hairColorTextView"
+        tools:text="Eye Color"/>
+
+    <TextView
+        android:id="@+id/genderTextView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textSize="16sp"
+        app:layout_constraintStart_toStartOf="@id/eyeColorTextView"
+        app:layout_constraintTop_toBottomOf="@id/eyeColorTextView"
+        tools:text="Gender"/>
+
+    <TextView
+        android:id="@+id/homeworldNameTextView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="12dp"
+        app:layout_constraintStart_toEndOf="@id/nameTextView"
+        app:layout_constraintTop_toTopOf="@id/nameTextView"
+        tools:text="Homeworld"/>
+
+</androidx.constraintlayout.widget.ConstraintLayout>
