@@ -86,5 +86,8 @@ class KtorNetwork : KtorNetworkApi {
         }
     }
 
+    fun close() {
+        client.close()
+    }
 
 }

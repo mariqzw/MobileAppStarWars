@@ -72,5 +72,9 @@ class HomeFragment : Fragment() {
 
     }
 
+    override fun onDestroyView() {
+        super.onDestroyView()
+        networkApi.close()
+    }
 
 }
