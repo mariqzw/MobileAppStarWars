@@ -57,5 +57,18 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
 
+    <Button
+        android:id="@+id/btnSaveToFile"
+        android:layout_width="100dp"
+        android:layout_height="wrap_content"
+        android:text="@string/save_to_file"
+        android:backgroundTint="@color/black"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_gravity="end"
+        android:padding="10dp"
+        android:layout_marginEnd="14dp"
+        android:layout_marginBottom="14dp"/>
+
 
 </androidx.constraintlayout.widget.ConstraintLayout>
