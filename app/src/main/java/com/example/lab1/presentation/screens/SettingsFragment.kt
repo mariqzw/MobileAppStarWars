@@ -18,13 +18,14 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlin.system.exitProcess
 
-private val Context.dataStore by preferencesDataStore(name = "settings")
+val Context.dataStore by preferencesDataStore(name = "settings")
 
 class SettingsFragment : Fragment() {
 
     private lateinit var binding: FragmentSettingsBinding
 
     private val EMAIL_KEY = stringPreferencesKey("email")
+    private val FONT_KEY = stringPreferencesKey("font_size")
 
     private val args: SettingsFragmentArgs by navArgs()
     private val TAG = "SettingsFragment"
@@ -53,28 +54,53 @@ class SettingsFragment : Fragment() {
             logout()
         }
     }
-
     private fun loadSettings() {
         lifecycleScope.launch {
             val preferences = requireContext().dataStore.data.first()
             val savedEmail = preferences[EMAIL_KEY] ?: args.user.email
+            val savedFontSize = preferences[FONT_KEY] ?: "Medium"
 
             binding.oldEmail.text = savedEmail
             binding.etEmail.setText(savedEmail)
-            Log.d(TAG, "Loaded email for UI: $savedEmail")
+            binding.seekBarFontSize.progress = when (savedFontSize) {
+                "Small" -> 0
+                "Medium" -> 50
+                "Large" -> 100
+                else -> 50
+            }
+
+            Log.d(TAG, "Loaded email: $savedEmail, font size: $savedFontSize")
         }
     }
 
     private fun saveSettings() {
         val emailToSave = binding.etEmail.text.toString()
+        val fontSize = when (binding.seekBarFontSize.progress) {
+            in 0..33 -> "Small"
+            in 34..66 -> "Medium"
+            else -> "Large"
+        }
 
+        saveFontSize(fontSize)
+        saveEmail(emailToSave)
+
+        binding.oldEmail.text = emailToSave
+        Log.d(TAG, "Saved email: $emailToSave, font size: $fontSize")
+    }
+
+    private fun saveFontSize(fontSize: String) {
         lifecycleScope.launch {
             requireContext().dataStore.edit { preferences ->
-                preferences[EMAIL_KEY] = emailToSave
+                preferences[FONT_KEY] = fontSize
             }
+        }
+    }
 
-            binding.oldEmail.text = emailToSave
-            Log.d(TAG, "Saved email: $emailToSave")
+    private fun saveEmail(email: String) {
+        lifecycleScope.launch {
+            requireContext().dataStore.edit { preferences ->
+                preferences[EMAIL_KEY] = email
+            }
         }
     }
 
