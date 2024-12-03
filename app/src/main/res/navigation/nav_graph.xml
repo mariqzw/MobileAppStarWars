@@ -41,8 +41,19 @@
         android:name="com.example.lab1.presentation.screens.HomeFragment"
         android:label="Home">
         <argument
-            android:name="username"
-            app:argType="string" />
+            android:name="user"
+            app:argType="com.example.lab1.models.User" />
+        <action
+            android:id="@+id/action_homeFragment_to_settingsFragment"
+            app:destination="@id/settingsFragment" />
     </fragment>
 
+    <fragment
+        android:id="@+id/settingsFragment"
+        android:name="com.example.lab1.presentation.screens.SettingsFragment"
+        android:label="Settings">
+        <argument
+            android:name="user"
+            app:argType="com.example.lab1.models.User" />
+    </fragment>
 </navigation>

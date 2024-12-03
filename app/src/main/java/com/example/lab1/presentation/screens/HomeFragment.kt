@@ -7,6 +7,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
+import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.lab1.databinding.FragmentHomeBinding
@@ -35,12 +36,19 @@ class HomeFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        binding.usernameHeader.text = args.username
+        val username = args.user.username
+        Log.d(TAG, "Received username: $username")
+        binding.usernameHeader.text = username
+
 
         setupRecyclerView()
 
         fetchCharacters()
 
+        binding.btnSettings.setOnClickListener {
+            val action = HomeFragmentDirections.actionHomeFragmentToSettingsFragment(args.user)
+            findNavController().navigate(action)
+        }
     }
 
     private fun setupRecyclerView() {
@@ -69,8 +77,5 @@ class HomeFragment : Fragment() {
             } finally {
             }
         }
-
     }
-
-
 }
