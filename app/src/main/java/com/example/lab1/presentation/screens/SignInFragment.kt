@@ -42,7 +42,7 @@ class SignInFragment : Fragment() {
 
             if (username == user.username && email == user.email && password == user.password) {
                 Log.d(TAG, "Successful login")
-                val action = SignInFragmentDirections.actionSignInFragmentToHomeFragment(user.username)
+                val action = SignInFragmentDirections.actionSignInFragmentToHomeFragment(user)
                 findNavController().navigate(action)
             } else {
                 Log.d(TAG, "Error! Invalid username or password")
