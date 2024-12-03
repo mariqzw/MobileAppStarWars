@@ -26,5 +26,9 @@
     <string name="Email">Email</string>
     <string name="current_email">Current email:</string>
     <string name="logout">Logout</string>
+    <string name="save_to_file">Save to file</string>
+    <string name="delete_file">Delete file</string>
+    <string name="restore_file">Restore file</string>
+    <string name="file_status_will_appear_here">File status will appear here</string>
 
 </resources>

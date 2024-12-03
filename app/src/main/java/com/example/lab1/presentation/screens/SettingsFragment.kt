@@ -2,10 +2,12 @@ package com.example.lab1.presentation.screens
 
 import android.content.Context
 import android.os.Bundle
+import android.os.Environment
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
@@ -16,6 +18,7 @@ import androidx.navigation.fragment.navArgs
 import com.example.lab1.databinding.FragmentSettingsBinding
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
+import java.io.File
 import kotlin.system.exitProcess
 
 val Context.dataStore by preferencesDataStore(name = "settings")
@@ -41,6 +44,7 @@ class SettingsFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         loadSettings()
+        displayFileStatus()
 
         binding.btnBack.setOnClickListener {
             findNavController().popBackStack()
@@ -52,6 +56,15 @@ class SettingsFragment : Fragment() {
 
         binding.btnLogout.setOnClickListener {
             logout()
+        }
+
+
+        binding.btnDeleteFile.setOnClickListener {
+            deleteFile()
+        }
+
+        binding.btnRestoreFile.setOnClickListener {
+            restoreFile()
         }
     }
     private fun loadSettings() {
@@ -117,5 +130,51 @@ class SettingsFragment : Fragment() {
             requireActivity().finish()
             exitProcess(0)
         }
+    }
+
+    private fun displayFileStatus() {
+        val externalFile = File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS), "19_characters.txt")
+        val internalBackup = File(requireContext().filesDir, "backup_characters.txt")
+
+        if (externalFile.exists()) {
+            binding.tvFileStatus.text = "File exists: ${externalFile.absolutePath}"
+            binding.btnDeleteFile.visibility = View.VISIBLE
+            binding.btnRestoreFile.visibility = View.GONE
+        } else if (internalBackup.exists()) {
+            binding.tvFileStatus.text = "Backup exists in internal storage"
+            binding.btnDeleteFile.visibility = View.GONE
+            binding.btnRestoreFile.visibility = View.VISIBLE
+        } else {
+            binding.tvFileStatus.text = "No file or backup found"
+            binding.btnDeleteFile.visibility = View.GONE
+            binding.btnRestoreFile.visibility = View.GONE
+        }
+    }
+
+    private fun deleteFile() {
+        val externalFile = File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS), "19_characters.txt")
+        val internalBackup = File(requireContext().filesDir, "backup_characters.txt")
+
+        if (externalFile.exists()) {
+            externalFile.copyTo(internalBackup, overwrite = true)
+            externalFile.delete()
+            Toast.makeText(requireContext(), "File deleted and backup created", Toast.LENGTH_SHORT).show()
+        } else {
+            Toast.makeText(requireContext(), "File not found", Toast.LENGTH_SHORT).show()
+        }
+        displayFileStatus()
+    }
+
+    private fun restoreFile() {
+        val internalBackup = File(requireContext().filesDir, "backup_characters.txt")
+        val externalFile = File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS), "19_characters.txt")
+
+        if (internalBackup.exists()) {
+            internalBackup.copyTo(externalFile, overwrite = true)
+            Toast.makeText(requireContext(), "File restored to external storage", Toast.LENGTH_SHORT).show()
+        } else {
+            Toast.makeText(requireContext(), "No backup file found", Toast.LENGTH_SHORT).show()
+        }
+        displayFileStatus()
     }
 }
