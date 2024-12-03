@@ -1,6 +1,7 @@
 package com.example.lab1.presentation.screens
 
 import android.content.Context
+import android.content.SharedPreferences
 import android.os.Bundle
 import android.os.Environment
 import android.util.Log
@@ -26,9 +27,11 @@ val Context.dataStore by preferencesDataStore(name = "settings")
 class SettingsFragment : Fragment() {
 
     private lateinit var binding: FragmentSettingsBinding
+    private lateinit var sharedPreferences: SharedPreferences
 
     private val EMAIL_KEY = stringPreferencesKey("email")
     private val FONT_KEY = stringPreferencesKey("font_size")
+    private val COLOR_KEY = "is_beige"
 
     private val args: SettingsFragmentArgs by navArgs()
     private val TAG = "SettingsFragment"
@@ -42,9 +45,11 @@ class SettingsFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        sharedPreferences = requireContext().getSharedPreferences("ui_prefs", Context.MODE_PRIVATE)
 
         loadSettings()
         displayFileStatus()
+        applyColorScheme(sharedPreferences.getBoolean(COLOR_KEY, false))
 
         binding.btnBack.setOnClickListener {
             findNavController().popBackStack()
@@ -66,7 +71,15 @@ class SettingsFragment : Fragment() {
         binding.btnRestoreFile.setOnClickListener {
             restoreFile()
         }
+
+        binding.switchChangeColor.setOnCheckedChangeListener { _, isChecked ->
+            saveColorPreference(isChecked)
+            applyColorScheme(isChecked)
+        }
+
+        binding.switchChangeColor.isChecked = sharedPreferences.getBoolean(COLOR_KEY, false)
     }
+
     private fun loadSettings() {
         lifecycleScope.launch {
             val preferences = requireContext().dataStore.data.first()
@@ -130,6 +143,24 @@ class SettingsFragment : Fragment() {
             requireActivity().finish()
             exitProcess(0)
         }
+    }
+
+    private fun saveColorPreference(isBeige: Boolean) {
+        with(sharedPreferences.edit()) {
+            putBoolean(COLOR_KEY, isBeige)
+            apply()
+        }
+    }
+
+    private fun applyColorScheme(isBeige: Boolean) {
+        val headerColor = if (isBeige) android.R.color.black else android.R.color.darker_gray
+        val buttonColor = if (isBeige) android.R.color.black else android.R.color.darker_gray
+
+        binding.header.setBackgroundColor(requireContext().getColor(headerColor))
+        binding.btnSaveSettings.setBackgroundColor(requireContext().getColor(buttonColor))
+        binding.btnLogout.setBackgroundColor(requireContext().getColor(buttonColor))
+        binding.btnDeleteFile.setBackgroundColor(requireContext().getColor(buttonColor))
+        binding.btnRestoreFile.setBackgroundColor(requireContext().getColor(buttonColor))
     }
 
     private fun displayFileStatus() {
