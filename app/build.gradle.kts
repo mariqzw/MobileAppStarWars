@@ -62,4 +62,7 @@ dependencies {
     implementation("io.ktor:ktor-client-content-negotiation:2.3.4")
     implementation("io.ktor:ktor-serialization-kotlinx-json:2.3.4")
     implementation("androidx.datastore:datastore-preferences:1.0.0")
+    implementation("androidx.room:room-ktx:2.5.2")
+    implementation("androidx.room:room-runtime:2.5.2")
+    implementation("androidx.swiperefreshlayout:swiperefreshlayout:1.1.0")
 }
