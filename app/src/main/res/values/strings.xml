@@ -30,5 +30,6 @@
     <string name="delete_file">Delete file</string>
     <string name="restore_file">Restore file</string>
     <string name="file_status_will_appear_here">File status will appear here</string>
+    <string name="delete">Delete</string>
 
 </resources>
