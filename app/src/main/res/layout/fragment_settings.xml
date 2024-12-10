@@ -20,10 +20,10 @@
         <ImageView
             android:id="@+id/btnBack"
             android:layout_width="48dp"
-            android:layout_height="match_parent"
+            android:layout_height="48dp"
             android:contentDescription="@string/navigate_to_home"
             android:layout_marginStart="8dp"
-            android:src="@drawable/ic_arrow"
+            android:src="@drawable/baseline_arrow_back_24"
             android:clickable="true"
             android:focusable="true"/>
 
