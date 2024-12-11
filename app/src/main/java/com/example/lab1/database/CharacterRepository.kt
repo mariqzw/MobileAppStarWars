@@ -7,7 +7,7 @@ class CharacterRepository(
     private val api: KtorNetworkApi,
     private val dao: CharacterDao
 ) {
-    private suspend fun getCharacters(orderNumber: Int, page: Int = 1): List<CharacterEntity> {
+    suspend fun getCharacters(orderNumber: Int, page: Int = 1): List<CharacterEntity> {
         return try {
             val characters = api.getCharacters(page)
 
@@ -29,7 +29,7 @@ class CharacterRepository(
         }
     }
 
-    private suspend fun cacheCharacters(characters: List<CharacterEntity>) {
+    suspend fun cacheCharacters(characters: List<CharacterEntity>) {
         dao.insertCharacters(characters)
     }
 
