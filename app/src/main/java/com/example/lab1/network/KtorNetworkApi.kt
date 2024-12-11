@@ -20,12 +20,13 @@ import io.ktor.http.path
 import io.ktor.serialization.kotlinx.json.json
 import kotlinx.serialization.json.Json
 import io.ktor.client.plugins.logging.Logger
+import io.ktor.client.request.parameter
 import io.ktor.client.request.url
 import kotlin.time.Duration.Companion.seconds
 
 
 interface KtorNetworkApi {
-    suspend fun getCharacters(): List<Character>
+    suspend fun getCharacters(page: Int = 1): List<Character>
     suspend fun getHomeworldName(url: String): String
 }
 
@@ -54,7 +55,7 @@ class KtorNetwork : KtorNetworkApi {
         }
     }
 
-    override suspend fun getCharacters(): List<Character> {
+    override suspend fun getCharacters(page: Int): List<Character> {
         return try {
             client.get {
                 url {
@@ -62,6 +63,7 @@ class KtorNetwork : KtorNetworkApi {
                     protocol = URLProtocol.HTTPS
                     path("api/people")
                     contentType(ContentType.Application.Json)
+                    parameter("page", page)
                 }
             }.let { response ->
                 Log.d("Ktor Response", response.body())
