@@ -1,4 +1,4 @@
-package com.example.lab1.data
+package com.example.lab1.database
 
 import androidx.room.Dao
 import androidx.room.Insert
@@ -15,5 +15,5 @@ interface CharacterDao {
     suspend fun insertCharacters(characters: List<CharacterEntity>)
 
     @Query("DELETE FROM characters")
-    suspend fun deleteAllCharacters()
+    fun deleteAllCharacters()
 }

@@ -1,4 +1,4 @@
-package com.example.lab1.data
+package com.example.lab1.database
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey
@@ -8,8 +8,8 @@ data class CharacterEntity (
     @PrimaryKey val name: String,
     val height: Int?,
     val mass: Int?,
-    val hairColor: String?,
-    val eyeColor: String?,
+    val hair_color: String?,
+    val eye_color: String?,
     val gender: String?,
     val homeworld: String?
 )
