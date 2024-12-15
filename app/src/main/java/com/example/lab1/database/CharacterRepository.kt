@@ -7,9 +7,9 @@ class CharacterRepository(
     private val api: KtorNetworkApi,
     private val dao: CharacterDao
 ) {
-    suspend fun getCharacters(orderNumber: Int, page: Int = 1): List<CharacterEntity> {
+    suspend fun getCharacters(): List<CharacterEntity> {
         return try {
-            val characters = api.getCharacters(page)
+            val characters = api.getCharacters()
 
             characters.map { character ->
                 val homeworldName =
@@ -33,7 +33,7 @@ class CharacterRepository(
         dao.insertCharacters(characters)
     }
 
-    private fun deleteCharacters() {
+    suspend fun deleteCharacters() {
         dao.deleteAllCharacters()
     }
 
@@ -43,7 +43,7 @@ class CharacterRepository(
 
     suspend fun refreshCharacters() {
         try {
-            val characters = getCharacters(1)
+            val characters = getCharacters()
             deleteCharacters()
             cacheCharacters(characters)
         } catch (e: Exception) {

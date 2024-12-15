@@ -15,5 +15,5 @@ interface CharacterDao {
     suspend fun insertCharacters(characters: List<CharacterEntity>)
 
     @Query("DELETE FROM characters")
-    fun deleteAllCharacters()
+    suspend fun deleteAllCharacters()
 }

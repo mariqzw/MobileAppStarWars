@@ -83,14 +83,20 @@ class HomeFragment : Fragment() {
             }
         }
 
-        binding.btnFetchByOrder.setOnClickListener {
-            val orderNumber = binding.etOrderNumber.text.toString().toIntOrNull()
-            if (orderNumber != null) {
-                lifecycleScope.launch {
-                    fetchCharactersByOrderNumber(orderNumber)
-                }
-            } else {
-                Toast.makeText(requireContext(), "Invalid order number", Toast.LENGTH_SHORT).show()
+//        binding.btnFetchByOrder.setOnClickListener {
+//            val orderNumber = binding.etOrderNumber.text.toString().toIntOrNull()
+//            if (orderNumber != null) {
+//                lifecycleScope.launch {
+//                    fetchCharactersByOrderNumber()
+//                }
+//            } else {
+//                Toast.makeText(requireContext(), "Invalid order number", Toast.LENGTH_SHORT).show()
+//            }
+//        }
+
+        binding.btnDelete.setOnClickListener {
+            lifecycleScope.launch {
+                deleteAllCharacters()
             }
         }
     }
@@ -103,7 +109,7 @@ class HomeFragment : Fragment() {
 
     private suspend fun fetchCharactersFromApi() {
         try {
-            val characters = repository.getCharacters(17)
+            val characters = repository.getCharacters()
             Log.d(TAG, "Fetched characters: $characters")
             if (characters.isNotEmpty()) {
                 repository.cacheCharacters(characters)
@@ -119,10 +125,10 @@ class HomeFragment : Fragment() {
         repository.getCharactersFlow().collect { characters ->
             if (characters.isEmpty()) {
                 Log.d(TAG, "No cached characters, fetching from API...")
-                fetchCharactersFromApi() // Fetch from API if no cached characters
+                fetchCharactersFromApi()
             } else {
                 Log.d(TAG, "Displaying characters: $characters")
-                adapter.setData(characters) // Update RecyclerView with the cached characters
+                adapter.setData(characters)
             }
         }
     }
@@ -135,9 +141,17 @@ class HomeFragment : Fragment() {
         }
     }
 
-    private suspend fun fetchCharactersByOrderNumber(orderNumber: Int) {
+    private suspend fun deleteAllCharacters() {
         try {
-            val characters = repository.getCharacters(orderNumber) // Fetch characters by order number
+            repository.deleteCharacters()
+        } catch (e: Exception) {
+            Toast.makeText(requireContext(), "Error refreshing data: ${e.message}", Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    private suspend fun fetchCharactersByOrderNumber() {
+        try {
+            val characters = repository.getCharacters() // Fetch characters by order number
             repository.cacheCharacters(characters) // Cache the fetched characters
         } catch (e: Exception) {
             Toast.makeText(requireContext(), "Error fetching data: ${e.message}", Toast.LENGTH_SHORT).show()
