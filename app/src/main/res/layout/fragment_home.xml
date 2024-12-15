@@ -51,19 +51,18 @@
         android:id="@+id/chatRecyclerView"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        android:clipToPadding="false"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/header"
-        app:layout_constraintBottom_toTopOf="@id/etOrderNumber"
+        app:layout_constraintBottom_toTopOf="@id/btnRefresh"
         app:layout_constraintVertical_bias="0.0" />
 
 
     <Button
         android:id="@+id/btnSaveToFile"
-        android:layout_width="100dp"
+        android:layout_width="140dp"
         android:layout_height="wrap_content"
         android:text="@string/save_to_file"
         android:backgroundTint="@color/black"
@@ -73,33 +72,22 @@
         android:layout_marginEnd="14dp"
         android:layout_marginBottom="14dp" />
 
-    <Button
-        android:id="@+id/btnFetchByOrder"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Fetch by Order"
-        android:backgroundTint="@color/black"
-        android:textColor="@android:color/white"
-        app:layout_constraintBottom_toTopOf="@id/btnSaveToFile"
-        app:layout_constraintEnd_toEndOf="parent"
-        android:layout_marginEnd="14dp"
-        android:layout_marginTop="10dp" />
 
     <Button
         android:id="@+id/btnRefresh"
-        android:layout_width="wrap_content"
+        android:layout_width="100dp"
         android:layout_height="wrap_content"
         android:text="Refresh"
         android:backgroundTint="@color/black"
         android:textColor="@android:color/white"
-        app:layout_constraintBottom_toTopOf="@id/btnFetchByOrder"
+        app:layout_constraintBottom_toTopOf="@id/btnLoadFromFile"
         app:layout_constraintEnd_toEndOf="parent"
         android:layout_marginEnd="14dp"
         android:layout_marginTop="10dp" />
 
     <Button
         android:id="@+id/btnDelete"
-        android:layout_width="wrap_content"
+        android:layout_width="100dp"
         android:layout_height="wrap_content"
         android:text="Delete"
         android:backgroundTint="@color/black"
@@ -109,18 +97,30 @@
         android:layout_marginEnd="14dp"
         android:layout_marginTop="10dp" />
 
-    <EditText
-        android:id="@+id/etOrderNumber"
-        android:layout_width="0dp"
+    <Button
+        android:id="@+id/btnLoadFromFile"
+        android:layout_width="140dp"
         android:layout_height="wrap_content"
-        android:hint="Enter Order Number"
-        android:inputType="number"
-        android:padding="8dp"
+        android:text="Load from file"
         android:backgroundTint="@color/black"
-        android:layout_marginHorizontal="16dp"
-        app:layout_constraintBottom_toTopOf="@id/btnDelete"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" />
+        android:textColor="@android:color/white"
+        app:layout_constraintBottom_toTopOf="@id/btnSaveToFile"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginEnd="14dp"
+        android:layout_marginTop="10dp" />
+
+    <!--    <EditText-->
+<!--        android:id="@+id/etOrderNumber"-->
+<!--        android:layout_width="0dp"-->
+<!--        android:layout_height="wrap_content"-->
+<!--        android:hint="Enter Order Number"-->
+<!--        android:inputType="number"-->
+<!--        android:padding="8dp"-->
+<!--        android:backgroundTint="@color/black"-->
+<!--        android:layout_marginHorizontal="16dp"-->
+<!--        app:layout_constraintBottom_toTopOf="@id/btnDelete"-->
+<!--        app:layout_constraintStart_toStartOf="parent"-->
+<!--        app:layout_constraintEnd_toEndOf="parent" />-->
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>

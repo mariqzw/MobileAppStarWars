@@ -15,8 +15,10 @@ import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.lab1.App
 import com.example.lab1.database.CharacterDao
+import com.example.lab1.database.CharacterEntity
 import com.example.lab1.database.CharacterRepository
 import com.example.lab1.databinding.FragmentHomeBinding
+import com.example.lab1.models.Character
 import com.example.lab1.network.KtorNetwork
 import com.example.lab1.network.KtorNetworkApi
 import com.example.lab1.presentation.adapter.CharacterAdapter
@@ -55,18 +57,15 @@ class HomeFragment : Fragment() {
 
         val app = requireActivity().application as App
         characterDao = app.database.characterDao()
-
-        loadFontSize()
-
         repository = CharacterRepository(networkApi, characterDao)
 
+        loadFontSize()
         setupRecyclerView()
 
         lifecycleScope.launch {
             observeCharacters()
         }
 
-//        fetchCharacters()
 
         binding.btnSettings.setOnClickListener {
             val action = HomeFragmentDirections.actionHomeFragmentToSettingsFragment(args.user)
@@ -82,17 +81,6 @@ class HomeFragment : Fragment() {
                 refreshCharactersFromApi()
             }
         }
-
-//        binding.btnFetchByOrder.setOnClickListener {
-//            val orderNumber = binding.etOrderNumber.text.toString().toIntOrNull()
-//            if (orderNumber != null) {
-//                lifecycleScope.launch {
-//                    fetchCharactersByOrderNumber()
-//                }
-//            } else {
-//                Toast.makeText(requireContext(), "Invalid order number", Toast.LENGTH_SHORT).show()
-//            }
-//        }
 
         binding.btnDelete.setOnClickListener {
             lifecycleScope.launch {
@@ -121,6 +109,7 @@ class HomeFragment : Fragment() {
         }
     }
 
+    // реактивное обновление списка персонажей путем создания наблюдаемого запроса в Room
     private suspend fun observeCharacters() {
         repository.getCharactersFlow().collect { characters ->
             if (characters.isEmpty()) {
@@ -149,37 +138,6 @@ class HomeFragment : Fragment() {
         }
     }
 
-    private suspend fun fetchCharactersByOrderNumber() {
-        try {
-            val characters = repository.getCharacters() // Fetch characters by order number
-            repository.cacheCharacters(characters) // Cache the fetched characters
-        } catch (e: Exception) {
-            Toast.makeText(requireContext(), "Error fetching data: ${e.message}", Toast.LENGTH_SHORT).show()
-        }
-    }
-
-
-//    private fun fetchCharacters() {
-//        viewLifecycleOwner.lifecycleScope.launch {
-//            try {
-//                val characters = networkApi.getCharacters()
-//
-//                val charactersWithHomeworld = characters.map { character ->
-//                    val homeworldName = if (character.homeworld != null) {
-//                        networkApi.getHomeworldName(character.homeworld)
-//                    } else {
-//                        "Unknown"
-//                    }
-//                    character.copy(homeworld = homeworldName)
-//                }
-//                adapter.setData(charactersWithHomeworld)
-//            } catch (e: Exception) {
-//                Log.e(TAG, "Error fetching characters: ${e.message}")
-//                Toast.makeText(requireContext(), "Please check your internet connection.", Toast.LENGTH_LONG).show()
-//            } finally {
-//            }
-//        }
-//    }
 
     private fun loadFontSize() {
         lifecycleScope.launch {
@@ -230,6 +188,4 @@ class HomeFragment : Fragment() {
     private fun isExternalStorageWritable(): Boolean {
         return Environment.getExternalStorageState() == Environment.MEDIA_MOUNTED
     }
-
-
 }
