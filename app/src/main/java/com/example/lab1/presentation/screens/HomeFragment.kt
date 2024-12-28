@@ -49,9 +49,6 @@ class HomeFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-//        val context = requireContext() // или activity.context
-//        context.deleteDatabase("starwars_database")
-
         val username = args.user.username
         Log.d(TAG, "Received username: $username")
         binding.usernameHeader.text = username
