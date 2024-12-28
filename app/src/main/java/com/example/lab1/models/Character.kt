@@ -4,7 +4,7 @@ package com.example.lab1.models
 data class Character(
     val name: String? = null,
     val height: Int? = null,
-    val mass: Int? = null,
+    val mass: String? = null,
     val hair_color: String? = null,
     val eye_color: String? = null,
     val gender: String? = null,

@@ -37,9 +37,9 @@ class CharacterAdapter(private var items: List<CharacterEntity>, private var fon
 
         fun bind(character: CharacterEntity) {
             with(binding) {
-                nameTextView.text = character.name ?: "-"
+                nameTextView.text = character.name
                 heightTextView.text = character.height?.toString() ?: "-"
-                massTextView.text = character.mass?.toString() ?: "-"
+                massTextView.text = character.mass ?: "-"
                 hairColorTextView.text = character.hair_color ?: "-"
                 eyeColorTextView.text = character.eye_color ?: "-"
                 genderTextView.text = character.gender ?: "-"

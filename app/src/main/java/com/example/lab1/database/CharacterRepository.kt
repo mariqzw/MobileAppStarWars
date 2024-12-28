@@ -29,6 +29,28 @@ class CharacterRepository(
         }
     }
 
+    suspend fun getCharactersByPage(page: Int): List<CharacterEntity> {
+        return try {
+            val characters = api.getCharactersbyPage(page) // Передаем номер страницы в API
+
+            characters.map { character ->
+                val homeworldName =
+                    character.homeworld?.let { api.getHomeworldName(it) } ?: "Unknown"
+                CharacterEntity(
+                    name = character.name ?: "",
+                    height = character.height,
+                    mass = character.mass,
+                    hair_color = character.hair_color,
+                    eye_color = character.eye_color,
+                    gender = character.gender,
+                    homeworld = homeworldName
+                )
+            }
+        } catch (e: Exception) {
+            throw Exception("Error getting characters by page: ${e.message}", e)
+        }
+    }
+
     suspend fun cacheCharacters(characters: List<CharacterEntity>) {
         dao.insertCharacters(characters)
     }

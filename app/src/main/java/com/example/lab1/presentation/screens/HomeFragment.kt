@@ -15,12 +15,9 @@ import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.lab1.App
 import com.example.lab1.database.CharacterDao
-import com.example.lab1.database.CharacterEntity
 import com.example.lab1.database.CharacterRepository
 import com.example.lab1.databinding.FragmentHomeBinding
-import com.example.lab1.models.Character
 import com.example.lab1.network.KtorNetwork
-import com.example.lab1.network.KtorNetworkApi
 import com.example.lab1.presentation.adapter.CharacterAdapter
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
@@ -35,6 +32,7 @@ class HomeFragment : Fragment() {
     private val networkApi = KtorNetwork()
     private lateinit var repository: CharacterRepository
     private lateinit var characterDao: CharacterDao
+    private var currentPage: Int = 1
 
     private val FONT_KEY = stringPreferencesKey("font_size")
     private val TAG = "HomeFragment"
@@ -51,6 +49,9 @@ class HomeFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+//        val context = requireContext() // или activity.context
+//        context.deleteDatabase("starwars_database")
+
         val username = args.user.username
         Log.d(TAG, "Received username: $username")
         binding.usernameHeader.text = username
@@ -61,11 +62,15 @@ class HomeFragment : Fragment() {
 
         loadFontSize()
         setupRecyclerView()
+        setupPagination()
+
+        lifecycleScope.launch {
+            loadCharactersByPage(currentPage)
+        }
 
         lifecycleScope.launch {
             observeCharacters()
         }
-
 
         binding.btnSettings.setOnClickListener {
             val action = HomeFragmentDirections.actionHomeFragmentToSettingsFragment(args.user)
@@ -94,6 +99,41 @@ class HomeFragment : Fragment() {
         binding.chatRecyclerView.layoutManager = LinearLayoutManager(requireContext())
         binding.chatRecyclerView.adapter = adapter
     }
+
+    private fun setupPagination() {
+        binding.btnNext.setOnClickListener {
+            lifecycleScope.launch {
+                currentPage++
+                loadCharactersByPage(currentPage)
+            }
+        }
+
+        binding.btnPrevious.setOnClickListener {
+            lifecycleScope.launch {
+                if (currentPage > 1) {
+                    currentPage--
+                    loadCharactersByPage(currentPage)
+                } else {
+                    Toast.makeText(requireContext(), "This is the first page", Toast.LENGTH_SHORT).show()
+                }
+            }
+        }
+    }
+
+    private suspend fun loadCharactersByPage(page: Int) {
+        try {
+            val characters = repository.getCharactersByPage(page)
+            Log.d(TAG, "Loaded characters for page $page: $characters")
+            if (characters.isNotEmpty()) {
+                adapter.setData(characters)
+            } else {
+                Toast.makeText(requireContext(), "No characters found on this page", Toast.LENGTH_SHORT).show()
+            }
+        } catch (e: Exception) {
+            Toast.makeText(requireContext(), "Error loading data: ${e.message}", Toast.LENGTH_SHORT).show()
+        }
+    }
+
 
     private suspend fun fetchCharactersFromApi() {
         try {
@@ -125,6 +165,8 @@ class HomeFragment : Fragment() {
     private suspend fun refreshCharactersFromApi() {
         try {
             repository.refreshCharacters()
+            Log.d(TAG, "Refresh characters from API")
+            loadCharactersByPage(1)
         } catch (e: Exception) {
             Toast.makeText(requireContext(), "Error refreshing data: ${e.message}", Toast.LENGTH_SHORT).show()
         }
@@ -133,6 +175,8 @@ class HomeFragment : Fragment() {
     private suspend fun deleteAllCharacters() {
         try {
             repository.deleteCharacters()
+            Log.d(TAG, "Delete characters from database")
+            loadCharactersByPage(1)
         } catch (e: Exception) {
             Toast.makeText(requireContext(), "Error refreshing data: ${e.message}", Toast.LENGTH_SHORT).show()
         }
