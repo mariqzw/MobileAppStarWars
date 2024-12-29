@@ -1,17 +1,11 @@
 package com.example.lab1.presentation.screens
 
 import android.os.Bundle
-import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.view.ViewCompat
-import androidx.core.view.WindowInsetsCompat
-import androidx.fragment.app.Fragment
 import androidx.navigation.NavController
-import androidx.navigation.findNavController
 import androidx.navigation.fragment.NavHostFragment
 import com.example.lab1.R
 import com.example.lab1.databinding.ActivityMainBinding
-import com.example.lab1.models.User
 
 class MainActivity : AppCompatActivity() {
 

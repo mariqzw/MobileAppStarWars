@@ -49,6 +49,7 @@ dependencies {
     implementation(libs.androidx.constraintlayout)
     implementation(libs.androidx.navigation.fragment)
     implementation(libs.androidx.navigation.ui)
+    implementation(libs.androidx.preference)
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
@@ -60,4 +61,5 @@ dependencies {
     implementation("io.ktor:ktor-client-serialization:2.3.4")
     implementation("io.ktor:ktor-client-content-negotiation:2.3.4")
     implementation("io.ktor:ktor-serialization-kotlinx-json:2.3.4")
+    implementation("androidx.datastore:datastore-preferences:1.0.0")
 }

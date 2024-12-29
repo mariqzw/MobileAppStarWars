@@ -1,18 +1,25 @@
 package com.example.lab1.presentation.screens
 
 import android.os.Bundle
+import android.os.Environment
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
+import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
+import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.lab1.databinding.FragmentHomeBinding
 import com.example.lab1.network.KtorNetwork
 import com.example.lab1.presentation.adapter.CharacterAdapter
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
+import java.io.File
+import java.io.FileOutputStream
 
 class HomeFragment : Fragment() {
 
@@ -21,6 +28,7 @@ class HomeFragment : Fragment() {
     private lateinit var adapter: CharacterAdapter
     private val networkApi = KtorNetwork()
 
+    private val FONT_KEY = stringPreferencesKey("font_size")
     private val TAG = "HomeFragment"
 
     override fun onCreateView(
@@ -35,20 +43,32 @@ class HomeFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        binding.usernameHeader.text = args.username
+        val username = args.user.username
+        Log.d(TAG, "Received username: $username")
+        binding.usernameHeader.text = username
+
+        loadFontSize()
 
         setupRecyclerView()
 
         fetchCharacters()
 
+        binding.btnSettings.setOnClickListener {
+            val action = HomeFragmentDirections.actionHomeFragmentToSettingsFragment(args.user)
+            findNavController().navigate(action)
+        }
+
+        binding.btnSaveToFile.setOnClickListener {
+            saveCharactersToExternalStorage()
+        }
+
     }
 
     private fun setupRecyclerView() {
-        adapter = CharacterAdapter(emptyList())
+        adapter = CharacterAdapter(emptyList(), 16f)
         binding.chatRecyclerView.layoutManager = LinearLayoutManager(requireContext())
         binding.chatRecyclerView.adapter = adapter
     }
-
 
     private fun fetchCharacters() {
         viewLifecycleOwner.lifecycleScope.launch {
@@ -66,15 +86,59 @@ class HomeFragment : Fragment() {
                 adapter.setData(charactersWithHomeworld)
             } catch (e: Exception) {
                 Log.e(TAG, "Error fetching characters: ${e.message}")
+                Toast.makeText(requireContext(), "Please check your internet connection.", Toast.LENGTH_LONG).show()
             } finally {
             }
         }
-
     }
 
-    override fun onDestroyView() {
-        super.onDestroyView()
-        networkApi.close()
+    private fun loadFontSize() {
+        lifecycleScope.launch {
+            val preferences = requireContext().dataStore.data.first()
+            val fontSize = preferences[FONT_KEY] ?: "Medium"
+
+            val fontSizeInPx = when (fontSize) {
+                "Small" -> 12f
+                "Medium" -> 16f
+                "Large" -> 20f
+                else -> 16f // Default to Medium
+            }
+
+            adapter.setFontSize(fontSizeInPx)
+            adapter.notifyItemRangeChanged(0, adapter.itemCount)
+        }
     }
 
+    override fun onResume() {
+        super.onResume()
+        loadFontSize()
+    }
+
+    private fun saveCharactersToExternalStorage() {
+        lifecycleScope.launch {
+            try {
+                if (!isExternalStorageWritable()) {
+                    Toast.makeText(requireContext(), "External storage is not writable", Toast.LENGTH_SHORT).show()
+                    return@launch
+                }
+
+                val characters = networkApi.getCharacters()
+                val formattedCharacters = characters.joinToString("\n") { "${it.name} - ${it.homeworld ?: "Unknown"}" }
+
+                val fileName = "19_characters.txt"
+                val externalFile = File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS), fileName)
+
+                FileOutputStream(externalFile).use { output ->
+                    output.write(formattedCharacters.toByteArray())
+                    Toast.makeText(requireContext(), "File saved: ${externalFile.absolutePath}", Toast.LENGTH_LONG).show()
+                }
+            } catch (e: Exception) {
+                Log.e(TAG, "Error saving to external storage: ${e.message}")
+            }
+        }
+    }
+
+    private fun isExternalStorageWritable(): Boolean {
+        return Environment.getExternalStorageState() == Environment.MEDIA_MOUNTED
+    }
 }
