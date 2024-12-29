@@ -13,6 +13,9 @@ import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.example.lab1.App
+import com.example.lab1.database.CharacterDao
+import com.example.lab1.database.CharacterRepository
 import com.example.lab1.databinding.FragmentHomeBinding
 import com.example.lab1.network.KtorNetwork
 import com.example.lab1.presentation.adapter.CharacterAdapter
@@ -27,6 +30,9 @@ class HomeFragment : Fragment() {
     private val args: HomeFragmentArgs by navArgs()
     private lateinit var adapter: CharacterAdapter
     private val networkApi = KtorNetwork()
+    private lateinit var repository: CharacterRepository
+    private lateinit var characterDao: CharacterDao
+    private var currentPage: Int = 1
 
     private val FONT_KEY = stringPreferencesKey("font_size")
     private val TAG = "HomeFragment"
@@ -47,11 +53,21 @@ class HomeFragment : Fragment() {
         Log.d(TAG, "Received username: $username")
         binding.usernameHeader.text = username
 
+        val app = requireActivity().application as App
+        characterDao = app.database.characterDao()
+        repository = CharacterRepository(networkApi, characterDao)
+
         loadFontSize()
-
         setupRecyclerView()
+        setupPagination()
 
-        fetchCharacters()
+        lifecycleScope.launch {
+            loadCharactersByPage(currentPage)
+        }
+
+        lifecycleScope.launch {
+            observeCharacters()
+        }
 
         binding.btnSettings.setOnClickListener {
             val action = HomeFragmentDirections.actionHomeFragmentToSettingsFragment(args.user)
@@ -62,6 +78,17 @@ class HomeFragment : Fragment() {
             saveCharactersToExternalStorage()
         }
 
+        binding.btnRefresh.setOnClickListener {
+            lifecycleScope.launch {
+                refreshCharactersFromApi()
+            }
+        }
+
+        binding.btnDelete.setOnClickListener {
+            lifecycleScope.launch {
+                deleteAllCharacters()
+            }
+        }
     }
 
     private fun setupRecyclerView() {
@@ -70,27 +97,88 @@ class HomeFragment : Fragment() {
         binding.chatRecyclerView.adapter = adapter
     }
 
-    private fun fetchCharacters() {
-        viewLifecycleOwner.lifecycleScope.launch {
-            try {
-                val characters = networkApi.getCharacters()
+    private fun setupPagination() {
+        binding.btnNext.setOnClickListener {
+            lifecycleScope.launch {
+                currentPage++
+                loadCharactersByPage(currentPage)
+            }
+        }
 
-                val charactersWithHomeworld = characters.map { character ->
-                    val homeworldName = if (character.homeworld != null) {
-                        networkApi.getHomeworldName(character.homeworld)
-                    } else {
-                        "Unknown"
-                    }
-                    character.copy(homeworld = homeworldName)
+        binding.btnPrevious.setOnClickListener {
+            lifecycleScope.launch {
+                if (currentPage > 1) {
+                    currentPage--
+                    loadCharactersByPage(currentPage)
+                } else {
+                    Toast.makeText(requireContext(), "This is the first page", Toast.LENGTH_SHORT).show()
                 }
-                adapter.setData(charactersWithHomeworld)
-            } catch (e: Exception) {
-                Log.e(TAG, "Error fetching characters: ${e.message}")
-                Toast.makeText(requireContext(), "Please check your internet connection.", Toast.LENGTH_LONG).show()
-            } finally {
             }
         }
     }
+
+    private suspend fun loadCharactersByPage(page: Int) {
+        try {
+            val characters = repository.getCharactersByPage(page)
+            Log.d(TAG, "Loaded characters for page $page: $characters")
+            if (characters.isNotEmpty()) {
+                adapter.setData(characters)
+            } else {
+                Toast.makeText(requireContext(), "No characters found on this page", Toast.LENGTH_SHORT).show()
+            }
+        } catch (e: Exception) {
+            Toast.makeText(requireContext(), "Error loading data: ${e.message}", Toast.LENGTH_SHORT).show()
+        }
+    }
+
+
+    private suspend fun fetchCharactersFromApi() {
+        try {
+            val characters = repository.getCharacters()
+            Log.d(TAG, "Fetched characters: $characters")
+            if (characters.isNotEmpty()) {
+                repository.cacheCharacters(characters)
+            } else {
+                Toast.makeText(requireContext(), "No characters found", Toast.LENGTH_SHORT).show()
+            }
+        } catch (e: Exception) {
+            Toast.makeText(requireContext(), "Error fetching data: ${e.message}", Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    // реактивное обновление списка персонажей путем создания наблюдаемого запроса в Room
+    private suspend fun observeCharacters() {
+        repository.getCharactersFlow().collect { characters ->
+            if (characters.isEmpty()) {
+                Log.d(TAG, "No cached characters, fetching from API...")
+                fetchCharactersFromApi()
+            } else {
+                Log.d(TAG, "Displaying characters: $characters")
+                adapter.setData(characters)
+            }
+        }
+    }
+
+    private suspend fun refreshCharactersFromApi() {
+        try {
+            repository.refreshCharacters()
+            Log.d(TAG, "Refresh characters from API")
+            loadCharactersByPage(1)
+        } catch (e: Exception) {
+            Toast.makeText(requireContext(), "Error refreshing data: ${e.message}", Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    private suspend fun deleteAllCharacters() {
+        try {
+            repository.deleteCharacters()
+            Log.d(TAG, "Delete characters from database")
+            loadCharactersByPage(1)
+        } catch (e: Exception) {
+            Toast.makeText(requireContext(), "Error refreshing data: ${e.message}", Toast.LENGTH_SHORT).show()
+        }
+    }
+
 
     private fun loadFontSize() {
         lifecycleScope.launch {

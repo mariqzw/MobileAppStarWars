@@ -26,10 +26,11 @@ import kotlin.time.Duration.Companion.seconds
 
 interface KtorNetworkApi {
     suspend fun getCharacters(): List<Character>
+    suspend fun getCharactersbyPage(page: Int): List<Character>
     suspend fun getHomeworldName(url: String): String
 }
 
-private const val NETWORK_BASE_URL = "swapi.dev"
+private const val NETWORK_BASE_URL = "swapi-api.hbtn.io"
 
 class KtorNetwork : KtorNetworkApi {
     private val json = Json {
@@ -74,6 +75,26 @@ class KtorNetwork : KtorNetworkApi {
         }
     }
 
+    override suspend fun getCharactersbyPage(page: Int): List<Character> {
+        return try {
+            client.get {
+                url {
+                    host = NETWORK_BASE_URL
+                    protocol = URLProtocol.HTTPS
+                    path("api/people")
+                    contentType(ContentType.Application.Json)
+                    parameters.append("page", page.toString())
+                }
+            }.let { response ->
+                Log.d("Ktor Response", response.body())
+                val peopleResponse: PeopleResponse = response.body()
+                peopleResponse.results
+            }
+        } catch (exception: Exception) {
+            Log.e("Error", exception.message.toString())
+            listOf()
+        }
+    }
 
     override suspend fun getHomeworldName(url: String): String {
         return try {
@@ -85,9 +106,4 @@ class KtorNetwork : KtorNetworkApi {
             "Unknown"
         }
     }
-
-    fun close() {
-        client.close()
-    }
-
 }
